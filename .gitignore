@@ -1,0 +1,58 @@
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+.env.*.local
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Logs
+*.log
+logs/
+log/
+*.out
+
+# SQLite (if used for local testing)
+*.db
+*.sqlite3
+
+# Alembic / Migrations (optional: keep your migrations if needed)
+migrations/versions/*.pyc
+
+# Pytest cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+
+# Pydantic compiled models
+*.pkl
+
+# Redis Queue / RQ temp files
+rqworker.pid
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Docker
+*.env
+docker-compose.override.yml
+*.tmp
+
+# System files
+.DS_Store
+Thumbs.db
