@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
@@ -23,7 +23,7 @@ class Movie(Base):
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    duration = Column(Integer, nullable=False)  # in minutes
+    duration = Column(Integer, nullable=False) 
     release_date = Column(DateTime, nullable=False)
     genre = Column(String, nullable=False)
     rating = Column(String, nullable=False) 
@@ -63,7 +63,7 @@ class Booking(Base):
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     booking_date = Column(DateTime, default=datetime.datetime.utcnow)
     total_amount = Column(Float, nullable=False)
-    status = Column(String, nullable=False, default='confirmed')
+    status = Column(String, nullable=False, default='pending')
     seat_numbers = Column(String, nullable=False) 
     
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
@@ -91,7 +91,7 @@ class Seat(Base):
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     seat_number = Column(String, nullable=False)
     screen_number = Column(Integer, nullable=False)
-    is_available = Column(Integer, nullable=False, default=1)
+    is_available = Column(Boolean, nullable=False, default=True)
     theatre_id = Column(Integer, ForeignKey('theatres.id'), nullable=False)
     theatre = relationship("Theatre", back_populates="seats")
 
@@ -119,8 +119,7 @@ class Notification(Base):
     __tablename__= 'notifications'
     id = Column(Integer, primary_key=True, nullable=False, autoincrement=True)
     message = Column(String,nullable = False)
-    notification_type  = Column(String, nullable=False)
-    is_read = Column(Integer,nullable = False,default = 0)
+    is_read = Column(Boolean,nullable = False,default = False)
     created_at = Column(DateTime,default = datetime.datetime.utcnow)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship("User", back_populates="notifications")
