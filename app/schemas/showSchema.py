@@ -1,11 +1,10 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, Field, field_validator
-from datetime import time 
+from pydantic import BaseModel
+from datetime import datetime
 
 class ShowBase(BaseModel):
-    showTime: time
-    price:float
-    screenNumber: int
+    show_time: datetime
+    price: float
+    screen_number: int
     movie_id: int
     theatre_id: int
 
@@ -13,11 +12,11 @@ class ShowBase(BaseModel):
 class ShowCreate(ShowBase):
     pass
 
-class showUpdate(ShowBase):
+class ShowUpdate(ShowBase):
     pass
 
-class showResponse(ShowBase):
+class ShowResponse(ShowBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

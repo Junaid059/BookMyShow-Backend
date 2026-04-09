@@ -1,5 +1,4 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 
 class MovieBase(BaseModel):
@@ -16,18 +15,11 @@ class MovieCreate(MovieBase):
 class MovieUpdate(MovieBase):
     pass
 
-class MovieDelete(MovieBase):
-    pass 
+class MovieDelete(BaseModel):
+    id: int
 
-class MovieResponse(BaseModel):
+class MovieResponse(MovieBase):
     id:int
-    title:str
-    description:str
-    duration:int
-    release_date:str
-    genre:str
-    rating:str
 
-
-    class config:
+    class Config:
         from_attributes = True

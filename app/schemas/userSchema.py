@@ -1,6 +1,6 @@
-from fastapi import FastAPI
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
+from datetime import datetime
 import re
 
 class UserBase(BaseModel):
@@ -13,8 +13,9 @@ class UserBase(BaseModel):
     @classmethod
 
     def validateEmail(cls,value):
-        allowed = r"gmail,com,yahoo.com,hotmail.com,outlook.com,icloud.com,aol.com,protonmail.com,zoho.com,mail.com,gmx.com,yandex.com"
-        if re.search(allowed, value):
+        allowed_domains = ["gmail.com","yahoo.com","hotmail.com","outlook.com","icloud.com","aol.com","protonmail.com","zoho.com","mail.com","gmx.com","yandex.com"]
+        domain = value.split("@")[-1]
+        if domain not in allowed_domains:
             raise ValueError("Email domain not allowed")
         return value
     
@@ -34,7 +35,7 @@ class UserBase(BaseModel):
     @field_validator('role')
     @classmethod
     def validateRole(cls,value):
-        if value not in ['user,admin,organizer']:
+        if value not in ['user', 'admin', 'organizer']:
             raise ValueError("Role must be either user, admin or organizer")
         return value
     
@@ -46,6 +47,15 @@ class UserCreate(UserBase):
 class UserLogin(BaseModel):
     email: EmailStr = Field(...,max_length=100)
     password: str = Field(...,min_length=6)
+
+class LoginResponse(BaseModel):
+    message: str
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+class LogoutResponse(BaseModel):
+    message: str    
 
 class UserUpdate(BaseModel):
     name:str = Field(...,min_length=1,max_length=100)
@@ -60,8 +70,8 @@ class UserResponse(BaseModel):
     name:str
     email:EmailStr
     role:str
-    created_at:str
+    created_at:datetime
 
-    class config:
-        from_attribute = True
+    class Config:
+        from_attributes = True
 

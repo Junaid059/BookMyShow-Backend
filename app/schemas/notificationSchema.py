@@ -1,5 +1,5 @@
-from fastapi import FastAPI
 from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 
 class NotificationBase(BaseModel):
     message: str = Field(...,max_length=255)
@@ -21,9 +21,9 @@ class NotificationCreate(NotificationBase):
 class NotificationUpdate(NotificationBase):
     pass
     
-class NotificationRead(NotificationBase):
+class NotificationResponse(NotificationBase):
     id: int
-    created_at: str
+    created_at: datetime
    
     class Config:
-        from_attribute = True
+        from_attributes = True

@@ -1,23 +1,21 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel
 
-class seatBase(BaseModel):
+class SeatBase(BaseModel):
     seat_number: str 
     screen_number: int 
-    is_available: bool
+    is_available: bool = True
     theatre_id: int 
 
 
-class seatCreate(seatBase):
+class SeatCreate(SeatBase):
     pass
 
-
-class seatUpdate(seatBase):
+class SeatUpdate(SeatBase):
     pass
 
-class seatOut(seatBase):
+class SeatResponse(SeatBase):
     id: int
 
     class Config:
-        from_attribute = True
+        from_attributes = True
     

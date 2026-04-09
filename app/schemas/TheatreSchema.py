@@ -1,25 +1,22 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
-class ThreaterBase(BaseModel):
+class TheatreBase(BaseModel):
     name: str = Field(...,min_length=1,max_length=100)
     location: str = Field(...,min_length=1,max_length=200)
-    total_seats: int = Field(...,gt=0)
+    city_id: int
+    total_screens: int = Field(...,gt=0)
 
-class ThreaterCreate(ThreaterBase):
+class TheatreCreate(TheatreBase):
     pass
 
-class ThreaterUpdate(ThreaterBase):
+class TheatreUpdate(TheatreBase):
     pass
 
-class ThreaterDelete(ThreaterBase):
-    pass
-
-class ThreaterResponse(BaseModel):
+class TheatreDelete(BaseModel):
     id: int
-    name: str
-    location: str
-    total_seats: int
+
+class TheatreResponse(TheatreBase):
+    id: int
 
     class Config:
         from_attributes = True

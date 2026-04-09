@@ -1,10 +1,8 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel
 
 class CityBase(BaseModel):
     name: str 
     state: str
-    theatres: list[int] = Field(default_factory=list)
 
 class CityCreate(CityBase):
     pass
@@ -16,4 +14,4 @@ class CityResponse(CityBase):
     id: int
 
     class Config:
-        from_attribute = True
+        from_attributes = True

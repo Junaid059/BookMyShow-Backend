@@ -1,11 +1,11 @@
-from fastapi import FastAPI
 from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 
 class PaymentBase(BaseModel):
-    amount: float = Field(..., gt=0, description="The amount to be paid")
-    method: str = Field(..., description="The payment method (e.g., credit card, PayPal)")
-    status: str = Field(default="pending", description="The status of the payment")
-    booking_id: int = Field(..., description="The ID of the associated booking")
+    amount: float = Field(..., gt=0)
+    payment_method: str
+    status: str = Field(default="pending")
+    booking_id: int
 
     @field_validator('status')
     @classmethod
@@ -15,7 +15,7 @@ class PaymentBase(BaseModel):
             raise ValueError(f"Status must be one of {allowed_statuses}")
         return value
     
-    @field_validator('method')
+    @field_validator('payment_method')
     @classmethod
     def validateMethod(cls,value):
         allowed_methods = ['creditCard','bankTransfer','easyPaisa','jazzCash']
@@ -27,9 +27,9 @@ class PaymentBase(BaseModel):
 class PaymentCreate(PaymentBase):
     pass
 
-class paymentResponse(PaymentBase):
+class PaymentResponse(PaymentBase):
     id: int
-    payment_date: str
+    payment_date: datetime
 
     class Config:
-        from_attribute = True
+        from_attributes = True
