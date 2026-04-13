@@ -31,7 +31,7 @@ def getShowbyId(show_id: int, db: Session = Depends(get_db)):
     return show
 
 @router.put("/updateShow/{show_id}", response_model=ShowResponse)
-def updateShow(show_id: int, show: ShowUpdate, db: Session = Depends(get_db), getcurrentuser = getCurrentUser):
+def updateShow(show_id: int, show: ShowUpdate, db: Session = Depends(get_db), getcurrentuser :dict= Depends(getCurrentUser)):
     if getcurrentuser['role'] not in ('admin', 'organizer'):
         raise HTTPException(status_code=403, detail="Only admin and organizer can update shows")
     existingShow = db.query(models.Show).filter(models.Show.id == show_id).first()
@@ -47,7 +47,7 @@ def updateShow(show_id: int, show: ShowUpdate, db: Session = Depends(get_db), ge
     return existingShow
 
 @router.delete("/deleteShow/{show_id}", response_model = ShowResponse)
-def deleteShow(show_id: int, db: Session  =Depends(get_db), getcurrentuser = getCurrentUser):
+def deleteShow(show_id: int, db: Session  =Depends(get_db), getcurrentuser :dict= Depends(getCurrentUser)):
     if getcurrentuser['role'] not in ('admin', 'organizer'):
         raise HTTPException(status_code=403, detail="Only admin and organizer can delete shows")
     existingShow = db.query(models.Show).filter(models.Show.id == show_id).first()

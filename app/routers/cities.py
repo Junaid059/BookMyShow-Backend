@@ -11,7 +11,7 @@ router = APIRouter()
 def createCity(city: CityCreate, db: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
     if getcurrentuser['role'] not in ('admin', 'organizer'):
         raise HTTPException(status_code=403, detail="Only admin and organizer can create cities")
-    newCity = models.City(name = city.name, country = city.state, threater = city.threater)
+    newCity = models.City(name = city.name, state = city.state)
     db.add(newCity)
     db.commit()
     db.refresh(newCity)
@@ -29,23 +29,22 @@ def getCitybyId(city_id: int, db: Session =  Depends(get_db)):
         raise HTTPException(status_code=404, detail="City not found")
     return city
 
-@router.put("/updateCity?{city_id}", response_model=CityResponse)
-def updateCityDetails(city_id: int, user_id: int, City: CityResponse, db: Session = Depends(get_db), getcurrentuser: dict = Depends(getCurrentUser)):
-    if getcurrentuser['role'] not in ('admin', 'organizer') or getcurrentuser['id'] != user_id:
+@router.put("/updateCity/{city_id}", response_model=CityResponse)
+def updateCityDetails(city_id: int, City: CityCreate, db: Session = Depends(get_db), getcurrentuser: dict = Depends(getCurrentUser)):
+    if getcurrentuser['role'] not in ('admin', 'organizer'):
         raise HTTPException(status_code=403, detail="Only admin and organizer can update cities")
     existingCity = db.query(models.City).filter(models.City.id == city_id).first()
     if not existingCity:
         raise HTTPException(status_code=404, detail="City not found")
     setattr(existingCity, 'name', City.name)
-    setattr(existingCity, 'country', City.state)
-    setattr(existingCity, 'threater', City.threater)
+    setattr(existingCity, 'state', City.state)
     db.commit()
     db.refresh(existingCity)
     return existingCity
 
 @router.delete("/deleteCity/{city_id}", response_model = CityResponse)
-def deleteCity(city_id: int, user_id: int, db: Session = Depends(get_db), getcurrentuser: dict = Depends(getCurrentUser)):
-    if getcurrentuser['role'] not in ('admin', 'organizer') or getcurrentuser['id'] != user_id:
+def deleteCity(city_id: int, db: Session = Depends(get_db), getcurrentuser: dict = Depends(getCurrentUser)):
+    if getcurrentuser['role'] not in ('admin', 'organizer'):
         raise HTTPException(status_code=403, detail="Only admin and organizer can delete cities")
     existingCity = db.query(models.City).filter(models.City.id  == city_id).first()
     if not existingCity:

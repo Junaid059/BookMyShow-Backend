@@ -30,7 +30,7 @@ def updateReview(review_id: int, review: ReviewCreate, db: Session = Depends(get
     existingReview = db.query(models.Review).filter(models.Review.id == review_id).first()
     if not existingReview:
         raise HTTPException(status_code=404, detail="Review not found")
-    if existingReview.user_id != getcurrentuser['id'] and getcurrentuser['role'] not in ('admin','organizer','user'):  # type: ignore[union-attr]
+    if existingReview.user_id != getcurrentuser['id'] and getcurrentuser['role'] not in ('admin','organizer'):  # type: ignore[union-attr]
         raise HTTPException(status_code=403, detail="You can only update your own review or you do not have permission to update this review")
     existingReview.rating = review.rating  # type: ignore[assignment]
     existingReview.comment = review.comment  # type: ignore[assignment]
@@ -39,12 +39,12 @@ def updateReview(review_id: int, review: ReviewCreate, db: Session = Depends(get
     return existingReview
 
 
-@router.delete("/deleteReview?{review_id}", response_model = ReviewResponse)
+@router.delete("/deleteReview/{review_id}", response_model = ReviewResponse)
 def deleteReview(review_id: int, db: Session = Depends(get_db), getcurrentuser: dict = Depends(getCurrentUser)):
     existingReview = db.query(models.Review).filter(models.Review.id == review_id).first()
     if not existingReview:
         raise HTTPException(status_code=404, detail="Review not found")
-    if existingReview.user_id != getcurrentuser['id'] and getcurrentuser['role'] not in ('admin','organizer','user'):  # type: ignore[union-attr]
+    if existingReview.user_id != getcurrentuser['id'] and getcurrentuser['role'] not in ('admin','organizer'):  # type: ignore[union-attr]
         raise HTTPException(status_code=403, detail="You can only delete your own review or you do not have permission to delete this review")
     db.delete(existingReview)
     db.commit()

@@ -7,9 +7,9 @@ from ..auth import getCurrentUser
 
 router = APIRouter()
 
-@router.post("/createMovie", response_model = MovieCreate)
-def createMovie(movie: MovieCreate, db: Session = Depends(get_db),getcurrentuser = getCurrentUser):
-    if getcurrentuser['role'] != 'admin' or getcurrentuser['role'] != 'editor':
+@router.post("/createMovie", response_model = MovieResponse)
+def createMovie(movie: MovieCreate, db: Session = Depends(get_db),getcurrentuser: dict =Depends(getCurrentUser)):
+    if getcurrentuser['role'] not in ('admin', 'organizer'):
         raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = "Only admins and editors can access this resource")
     newMovie = db.query(models.Movie).filter(models.Movie.title == movie.title).first()
     if newMovie:
@@ -32,27 +32,27 @@ def getMovie(movie_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = "Movie not found")
     return movie
 
-@router.put("/updateMovie/{movie_id}",response_model = MovieUpdate)
-def updateMovie(movie_id: int, db: Session = Depends(get_db), getcurrentuser = getCurrentUser):
-    if getcurrentuser['role'] != 'admin' or getcurrentuser['role'] != 'editor':
-        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = "Only admins and editors can access this resource")
+@router.put("/updateMovie/{movie_id}",response_model = MovieResponse)
+def updateMovie(movie_id: int, movie: MovieUpdate, db: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
+    if getcurrentuser['role'] not in ('admin', 'organizer'):
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = "Only admins and organizers can access this resource")
     updatedMovie =  db.query(models.Movie).filter(models.Movie.id == movie_id).first()
     if not updatedMovie:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = "Movie not found")
-    setattr(updatedMovie,"title",updatedMovie.title)
-    setattr(updatedMovie,"description",updatedMovie.description)
-    setattr(updatedMovie,"duration",updatedMovie.duration)
-    setattr(updatedMovie,"release_date",updatedMovie.release_date)
-    setattr(updatedMovie,"genre",updatedMovie.genre)
-    setattr(updatedMovie,"rating",updatedMovie.rating)
+    setattr(updatedMovie,"title",movie.title)
+    setattr(updatedMovie,"description",movie.description)
+    setattr(updatedMovie,"duration",movie.duration)
+    setattr(updatedMovie,"release_date",movie.release_date)
+    setattr(updatedMovie,"genre",movie.genre)
+    setattr(updatedMovie,"rating",movie.rating)
     db.commit()
     db.refresh(updatedMovie)
     return updatedMovie
 
 @router.delete("/deleteMovie/{movie_id}",response_model = MovieDelete)
-def deleteMovie(movie_id: int, d: Session = Depends(get_db), getcurrentuser = getCurrentUser):
-    if getcurrentuser['role'] != 'admin' or getcurrentuser['role'] != 'editor':
-        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = "Only admins and editors can access this resource")
+def deleteMovie(movie_id: int, d: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
+    if getcurrentuser['role'] not in ('admin', 'organizer'):
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN, detail = "Only admins and organizers can access this resource")
     movie_to_delete = d.query(models.Movie).filter(models.Movie.id == movie_id).first()
     if not movie_to_delete:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = "Movie not found")

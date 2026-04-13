@@ -28,17 +28,18 @@ def getBookings(db: Session = Depends(get_db), getcurrentuser : dict = Depends(g
     return bookings
 
 @router.get("/getBookingbyId/{booking_id}", response_model = BookingResponse)
-def getBookingbyId(booking_id: int, user_id: int, db: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
-    if getcurrentuser['role'] not in ('admin', 'organizer', 'user') or getcurrentuser['id'] != user_id:
-        raise HTTPException(status_code=403, detail="You do not have permission to view this booking")
-    booking = db.query(models.Booking).filter(models.Booking.id == booking_id, models.Booking.user_id == user_id).first()
+def getBookingbyId(booking_id: int, db: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
+    if getcurrentuser['role'] in ('admin', 'organizer'):
+        booking = db.query(models.Booking).filter(models.Booking.id == booking_id).first()
+    else:
+        booking = db.query(models.Booking).filter(models.Booking.id == booking_id, models.Booking.user_id == getcurrentuser['id']).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     return booking
 
 @router.put("/updateBooking/{booking_id}", response_model = BookingResponse)
-def updateBooking(booking_id: int, user_id: int, booking: BookingResponse, db: Session = Depends(get_db), getcurrentuser : dict =  Depends(getCurrentUser)):
-    if getcurrentuser['role'] not in ('admin', 'organizer') or getcurrentuser['id'] != user_id:
+def updateBooking(booking_id: int, booking: BookingCreate, db: Session = Depends(get_db), getcurrentuser : dict =  Depends(getCurrentUser)):
+    if getcurrentuser['role'] not in ('admin', 'organizer') and getcurrentuser['id'] != booking.user_id:
         raise HTTPException(status_code=403, detail="You do not have permission to update this booking")
     existingBooking = db.query(models.Booking).filter(models.Booking.id == booking_id).first()
     if not existingBooking:
@@ -54,12 +55,12 @@ def updateBooking(booking_id: int, user_id: int, booking: BookingResponse, db: S
     return existingBooking
 
 @router.delete("/deleteBooking/{booking_id}", response_model = BookingResponse)
-def deleteBooking(booking_id: int, user_id: int, db: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
-    if getcurrentuser['role'] not in ('admin', 'organizer', 'user') or getcurrentuser['id'] != user_id:
-        raise HTTPException(status_code=403, detail="You do not have permission to delete this booking")
+def deleteBooking(booking_id: int, db: Session = Depends(get_db), getcurrentuser : dict = Depends(getCurrentUser)):
     existingBooking = db.query(models.Booking).filter(models.Booking.id == booking_id).first()
     if not existingBooking:
         raise HTTPException(status_code=404, detail="Booking not found")
+    if getcurrentuser['role'] not in ('admin', 'organizer') and getcurrentuser['id'] != existingBooking.user_id:
+        raise HTTPException(status_code=403, detail="You do not have permission to delete this booking")
     db.delete(existingBooking)
     db.commit()
     return existingBooking
